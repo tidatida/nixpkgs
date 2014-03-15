@@ -266,6 +266,23 @@ in stdenv.mkDerivation rec {
       mkdir -vp "$logo_output_path"
       cp -v "$icon_file" "$logo_output_path/${packageName}.png"
     done
+
+    # Create a desktop item.
+    mkdir -p $out/share/applications
+    cat > $out/share/applications/chromium.desktop <<EOF
+    [Desktop Entry]
+    Name=Chromium
+    Type=Application
+    Comment=Open-source version of Google Chrome web browser
+    Exec=$out/bin/chromium %U
+    TryExec=$out/bin/chromium
+    Icon=chromium
+    Categories=Network;WebBrowser;
+    MimeType=text/html;text/xml;application/xhtml+xml;x-scheme-handler/http;\
+      x-scheme-handler/https;x-scheme-handler/ftp;x-scheme-handler/mailto;\
+      x-scheme-handler/webcal;
+    StartupWMClass=chromium
+    EOF
   '';
 
   passthru = {
