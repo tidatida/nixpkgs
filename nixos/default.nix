@@ -30,7 +30,7 @@ let
 in
 
 {
-  inherit (eval) config options;
+  inherit (eval) config options pkgs;
 
   system = eval.config.system.build.toplevel;
 
