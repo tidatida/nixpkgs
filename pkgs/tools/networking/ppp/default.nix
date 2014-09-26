@@ -18,6 +18,7 @@ stdenv.mkDerivation rec {
       # Without nonpriv.patch, pppd --version doesn't work when not run as
       # root.
       ./nonpriv.patch
+      ./pppd-configurable-paths.patch
     ];
 
   buildInputs = [ libpcap ];
