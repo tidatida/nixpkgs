@@ -292,6 +292,7 @@
   ./services/networking/mstpd.nix
   ./services/networking/murmur.nix
   ./services/networking/nat.nix
+  ./services/networking/ncd.nix
   ./services/networking/networkmanager.nix
   ./services/networking/ngircd.nix
   ./services/networking/nix-serve.nix
