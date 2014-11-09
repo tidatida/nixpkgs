@@ -1,4 +1,4 @@
-{stdenv, fetchurl, cmake, openssl, nss, pkgconfig, nspr, bash, debug ? false}:
+{stdenv, fetchurl, fetchgit, cmake, openssl, nss, pkgconfig, nspr, bash, debug ? false}:
 let
   s = # Generated upstream information
   rec {
@@ -17,8 +17,11 @@ in
 stdenv.mkDerivation {
   inherit (s) name version;
   inherit buildInputs;
-  src = fetchurl {
-    inherit (s) url sha256;
+
+  src = fetchgit {
+    url = https://github.com/ambrop72/badvpn;
+    rev = "1cdcaf8c3cfe1c8cf5cffaed8a2e906a4222ad03";
+    sha256 = "0kwk26qmbmfz3qyviy603bzch7nh7zp2mhnrkvfn7fjh624bgjfy";
   };
 
   preConfigure = ''
