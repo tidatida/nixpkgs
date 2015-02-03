@@ -7,12 +7,14 @@
 # The function defaults are for easy testing.
 { system ? builtins.currentSystem
 , allPackages ? import ../../top-level/all-packages.nix
-, platform ? null, config ? {}, lib ? (import ../../../lib) }:
+, platform ? null, config ? {}, lib ? (import ../../../lib)
+, customBootstrapFiles ? null }:
 
 rec {
 
   bootstrapFiles =
-    if system == "i686-linux" then import ./bootstrap/i686.nix
+    if customBootstrapFiles != null then customBootstrapFiles
+    else if system == "i686-linux" then import ./bootstrap/i686.nix
     else if system == "x86_64-linux" then import ./bootstrap/x86_64.nix
     else if system == "armv5tel-linux" then import ./bootstrap/armv5tel.nix
     else if system == "armv6l-linux" then import ./bootstrap/armv6l.nix
@@ -300,7 +302,7 @@ rec {
   in derivation {
     name = "test-bootstrap-tools";
     inherit system;
-    builder = "${bootstrapFiles.busybox}";
+    builder = bootstrapFiles.busybox;
     args = [ "ash" "-e" "-c" "eval \"$buildCommand\"" ];
 
     buildCommand = ''

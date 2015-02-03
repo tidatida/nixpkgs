@@ -154,4 +154,12 @@ rec {
       allowedReferences = [];
     };
 
+  test = ((import ./default.nix) {
+    inherit system;
+    
+    customBootstrapFiles = {
+      busybox = "${build}/on-server/busybox";
+      bootstrapTools = "${build}/on-server/bootstrap-tools.tar.xz";
+    };
+  }).testBootstrapTools;
 }
