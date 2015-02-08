@@ -8,7 +8,7 @@ stdenv.mkDerivation rec {
     sha256 = "16hrs8k3nmc7a8jam5j1fpspd6sdpkamskvsdpcw6m29vnis8q44";
   };
 
-  doCheck = true;
+  #doCheck = true;
 
   meta = {
     homepage = http://www.gnu.org/software/libsigsegv/;
