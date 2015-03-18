@@ -12,7 +12,7 @@
 #  make a copy of this directory first. After copying, be sure to delete ./tmp
 #  if it exists. Then follow the minor update instructions.
 
-{ autonix, symlinkJoin, kde4, kf5, pkgs, qt4, qt5, stdenv, debug ? false }:
+{ autonix, symlinkJoin, kf5, pkgs, qt4, qt5, stdenv, debug ? false }:
 
 with stdenv.lib; with autonix;
 
@@ -62,12 +62,12 @@ let
     (with pkgs;
       {
         ACL = acl;
-        Akonadi = kde4.akonadi;
+        Akonadi = kdeApps.akonadi;
         Alsa = alsaLib;
         Automoc4 = automoc4;
         Avahi = avahi;
         BISON = bison;
-        Baloo = kde4.baloo;
+        Baloo = kdeApps.baloo;
         Boost = boost156;
         Canberra = libcanberra;
         Cdparanoia = cdparanoia;
@@ -93,7 +93,7 @@ let
         HUNSPELL = hunspell;
         HUpnp = herqq;
         Jasper = jasper;
-        KActivities = kde4.kactivities;
+        KActivities = kdeApps.kactivities;
         LCMS2 = lcms2;
         Ldap = openldap;
         LibAttica = attica;
@@ -284,7 +284,7 @@ let
       krfb = with pkgs; super.krfb // {
         buildInputs =
           super.krfb.buildInputs
-          ++ [xlibs.libXtst kde4.telepathy.common_internals];
+          ++ [xlibs.libXtst pkgs.telepathy_qt];
       };
 
       libkdcraw = with pkgs; super.libkdcraw // {
@@ -315,9 +315,21 @@ let
       (n: v: hasPrefix "kde-l10n" n)
       (importManifest ./manifest.nix { inherit mirror; });
 
-  kdeApps = generateCollection ./. {
+  kdeApps = let
+    callPackage = pkgs.newScope kdeApps;
+  in generateCollection ./. {
     inherit mkDerivation;
     inherit mirror preResolve postResolve renames scope;
+  } // {
+
+    akonadi = callPackage ../../desktops/kde-4.14/support/akonadi { };
+
+    baloo = callPackage ./kde4-deps/baloo.nix { boost = pkgs.boost156; };
+
+    kactivities = callPackage ./kde4-deps/kactivities.nix { };
+
+    kfilemetadata = callPackage ./kde4-deps/kfilemetadata.nix { };
+
   };
 
 in kdeApps // (mapAttrs l10nPkg l10nManifest)

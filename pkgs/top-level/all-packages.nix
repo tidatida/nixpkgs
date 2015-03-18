@@ -12965,8 +12965,24 @@ let
   });
   plasma5_latest = plasma52;
   plasma5_stable = plasma52;
-
-  kde5 = kf5_stable // plasma5_stable // kdeApps_stable;
+  
+  kde4_apps_with_new_libs = kdeApps: let
+    callPackage = newScope (kdeApps // {
+      kdebase_workspace = kdeApps.kde-workspace;
+      kde_runtime = kdeApps.kde-runtime;
+      oxygen_icons = kdeApps.oxygen-icons;
+    } // (kde4_apps_with_new_libs kdeApps));
+  in rec {
+    konversation = callPackage ../applications/networking/irc/konversation { };
+    
+    kdevplatform = callPackage ../development/libraries/kdevplatform {
+      boost = boost156;
+    };
+    
+    kdevelop = callPackage ../applications/editors/kdevelop { };
+  };
+  
+  kde5 = kf5_stable // plasma5_stable // kdeApps_stable // (kde4_apps_with_new_libs kdeApps_stable);
 
   xfce = xfce4-12;
   xfce4-12 = recurseIntoAttrs (import ../desktops/xfce { inherit config pkgs newScope; });
