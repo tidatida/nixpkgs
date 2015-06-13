@@ -13786,6 +13786,7 @@ let
 
   plasma53 = recurseIntoAttrs (callPackage ../desktops/plasma-5.3 {
     kf5 = kf510;
+    kdeApps = kdeApps_15_04;
   });
   plasma5_latest = plasma53;
   plasma5_stable = plasma53;
