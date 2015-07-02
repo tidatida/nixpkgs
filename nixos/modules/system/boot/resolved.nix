@@ -30,6 +30,7 @@ with lib;
       DNS=${concatStringsSep " " config.networking.nameservers}
     '';
 
+    networking.runResolvconfAtActivation = false;
   };
 
 }
