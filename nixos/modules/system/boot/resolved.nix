@@ -91,6 +91,7 @@ in
       ${config.services.resolved.extraConfig}
     '';
 
+    networking.runResolvconfAtActivation = false;
   };
 
 }
