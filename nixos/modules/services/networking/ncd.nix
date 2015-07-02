@@ -125,9 +125,10 @@ with lib;
       };
     };
 
-    # Disable default networking.
+    # Disable default networking that interferes with NCD.
     networking.useDHCP = false;
     networking.firewall.enable = false;
+    networking.runResolvconfAtActivation = false;
 
     # Make utility programs available.
     environment.systemPackages = [ ncdUtils ];
