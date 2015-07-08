@@ -6,11 +6,11 @@
 
 stdenv.mkDerivation rec {
   name = "openocd-${version}";
-  version = "0.8.0";
+  version = "0.9.0";
 
   src = fetchurl {
     url = "mirror://sourceforge/openocd/openocd-${version}.tar.bz2";
-    sha256 = "0byk7hnccgmhw0f84qlkfhps38gp2xp628bfrsc03vq08hr6q1sv";
+    sha256 = "837042ac9a156b9363cbffa1fcdaf463bfb83a49331addf52e63119642b5f443";
   };
 
   buildInputs = [ libftdi libusb1 pkgconfig ];
@@ -44,7 +44,7 @@ stdenv.mkDerivation rec {
       "remote target" for source-level debugging of embedded systems using the
       GNU GDB program.
     '';
-    homepage = http://openocd.sourceforge.net/;
+    homepage = http://openocd.org/;
     license = licenses.gpl2Plus;
     maintainers = with maintainers; [ viric bjornfor ];
     platforms = platforms.linux;
