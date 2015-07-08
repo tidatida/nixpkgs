@@ -5856,6 +5856,8 @@ let
 
   swftools = callPackage ../tools/video/swftools { };
 
+  swodec = callPackage ../development/tools/misc/swodec { };
+
   tcptrack = callPackage ../development/tools/misc/tcptrack { };
 
   teensy-loader = callPackage ../development/tools/misc/teensy { };
@@ -8276,6 +8278,8 @@ let
   sutils = callPackage ../tools/misc/sutils { };
 
   svrcore = callPackage ../development/libraries/svrcore { };
+
+  libswo = callPackage ../development/libraries/libswo { };
 
   sword = callPackage ../development/libraries/sword { };
 
