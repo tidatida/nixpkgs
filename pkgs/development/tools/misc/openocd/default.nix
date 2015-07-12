@@ -11,6 +11,8 @@ stdenv.mkDerivation rec {
 
   buildInputs = [ libftdi libusb1 pkgconfig hidapi ];
 
+  patches = [ ./kinetis-k20-fix.patch ];
+
   configureFlags = [
     "--enable-jtag_vpi"
     "--enable-usb_blaster_libftdi"

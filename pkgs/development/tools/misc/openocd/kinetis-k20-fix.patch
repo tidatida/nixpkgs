@@ -1,0 +1,53 @@
+commit 27d8e0a851ccad5fd684f4e957041046b0f175c0
+Author: Ambroz Bizjak <ambrop7@gmail.com>
+Date:   Sun Jul 12 14:40:51 2015 +0200
+
+    Make flash work on MK20DX256VLH7 (Teensy 3.1 board).
+    
+    This is the same code as suggested here http://article.gmane.org/gmane.comp.debugging.openocd.devel/25036
+    just with some changes in the comments.
+
+diff --git a/src/flash/nor/kinetis.c b/src/flash/nor/kinetis.c
+index 396fe42..9b6e0f9 100644
+--- a/src/flash/nor/kinetis.c
++++ b/src/flash/nor/kinetis.c
+@@ -176,6 +176,11 @@ static const struct {
+ #define KINETIS_K_SDID_K60_M150  0x000001C0
+ #define KINETIS_K_SDID_K70_M150  0x000001D0
+ 
++/* Some parts have a broken SDID.
++ * For details see the in this file handling this ID.
++ */
++#define KINETIS_K_SDID_PK20	0x000000FF
++
+ #define KINETIS_KL_SDID_SERIESID_MASK 0x00F00000
+ #define KINETIS_KL_SDID_SERIESID_KL   0x00100000
+ 
+@@ -1057,11 +1062,25 @@ static int kinetis_read_part_info(struct flash_bank *bank)
+ 	result = target_read_u32(target, SIM_SDID, &kinfo->sim_sdid);
+ 	if (result != ERROR_OK)
+ 		return result;
+-
++        
+ 	kinfo->klxx = 0;
+ 
++	/* K-series exceptions */
++	if (kinfo->sim_sdid == KINETIS_K_SDID_PK20) {
++		/* Although not documented as such by Freescale, it appears
++		 * that bits 8:7 of the read-only SIM_SDID register reflect the
++		 * granularity settings 0..3.
++		 * This was seen in:
++		 * - A TWR-K20D72M board is populated with a PK20DX256VLL7 part.
++		 * - A Teensy 3.1 board populated with an MK20DX256VLH7 part.
++		 */
++		granularity = (kinfo->sim_sdid >> 7) & 0x03;
++		LOG_DEBUG("Exception part SDID 0x%08" PRIX32
++			", granularity: 0x%08" PRIX32, kinfo->sim_sdid,
++			granularity);
++	}
+ 	/* K-series MCU? */
+-	if ((kinfo->sim_sdid & (~KINETIS_SDID_K_SERIES_MASK)) == 0) {
++	else if ((kinfo->sim_sdid & (~KINETIS_SDID_K_SERIES_MASK)) == 0) {
+ 		uint32_t mcu_type = kinfo->sim_sdid & KINETIS_K_SDID_TYPE_MASK;
+ 
+ 		switch (mcu_type) {
