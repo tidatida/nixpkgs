@@ -15,6 +15,7 @@ wrapQtProgram() {
         --prefix QML2_IMPORT_PATH : "$QML2_IMPORT_PATH" \
         --prefix XDG_CONFIG_DIRS : "$XDG_CONFIG_DIRS" \
         --prefix XDG_DATA_DIRS : "$XDG_DATA_DIRS" \
+        --set XDG_CURRENT_DESKTOP "kde" \
         "$@"
 }
 
@@ -29,6 +30,7 @@ makeQtWrapper() {
         --prefix QML2_IMPORT_PATH : "$QML2_IMPORT_PATH" \
         --prefix XDG_CONFIG_DIRS : "$XDG_CONFIG_DIRS" \
         --prefix XDG_DATA_DIRS : "$XDG_DATA_DIRS" \
+        --set XDG_CURRENT_DESKTOP "kde" \
         "$@"
 }
 
