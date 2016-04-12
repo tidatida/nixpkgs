@@ -15240,6 +15240,14 @@ let
 
     kdeconnect = callPackage ../applications/misc/kdeconnect { };
 
+    kdevplatform = callPackage ../applications/editors/kdevelop5/kdevplatform.nix {};
+    
+    kdevelop-pg-qt = callPackage ../applications/editors/kdevelop5/kdevelop-pg-qt.nix {};
+    
+    kdevelop = callPackage ../applications/editors/kdevelop5/kdevelop.nix {
+        llvmPackages = llvmPackages_38;
+    };
+    
     kile = callPackage ../applications/editors/kile/frameworks.nix { };
 
     konversation = callPackage ../applications/networking/irc/konversation/1.6.nix {
