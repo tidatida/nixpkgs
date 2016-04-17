@@ -1,5 +1,6 @@
 { stdenv, lib, pkgArches,
   name, version, src, monos, geckos, platforms,
+  pkgconfig, fontforge, makeWrapper, flex, bison,
   pulseaudioSupport,
   buildScript ? null, configureFlags ? ""
 }:
@@ -14,17 +15,17 @@ stdenv.mkDerivation ((lib.optionalAttrs (! isNull buildScript) {
 }) // rec {
   inherit name src configureFlags;
 
-  nativeBuildInputs = toBuildInputs pkgArches (pkgs: with pkgs; [
+  nativeBuildInputs = [
     pkgconfig fontforge makeWrapper flex bison
-  ]);
+  ];
 
   buildInputs = toBuildInputs pkgArches (pkgs: (with pkgs; [
     freetype fontconfig mesa mesa_noglu.osmesa libdrm libpng libjpeg openssl gnutls cups ncurses
-    alsaLib libxml2 libxslt lcms2
+    alsaLib libxml2 libxslt lcms2 gettext dbus mpg123 openal
   ])
   ++ lib.optional pulseaudioSupport pkgs.libpulseaudio
   ++ (with pkgs.xorg; [
-    xlibsWrapper libXi libXcursor libXinerama libXrandr libXrender libXxf86vm libXcomposite
+    libXi libXcursor libXinerama libXrandr libXrender libXxf86vm libXcomposite libXext
   ]));
 
   # Wine locates a lot of libraries dynamically through dlopen().  Add
@@ -39,6 +40,8 @@ stdenv.mkDerivation ((lib.optionalAttrs (! isNull buildScript) {
   # Don't shrink the ELF RPATHs in order to keep the extra RPATH
   # elements specified above.
   dontPatchELF = true;
+  
+  dontStrip = true;
 
   ## FIXME
   # Add capability to ignore known failing tests
