@@ -1,0 +1,282 @@
+diff -urN nspr-4.12.orig/nspr/pr/include/md/_winnt.h nspr-4.12/nspr/pr/include/md/_winnt.h
+--- nspr-4.12.orig/nspr/pr/include/md/_winnt.h	2016-02-12 14:51:25.000000000 +0100
++++ nspr-4.12/nspr/pr/include/md/_winnt.h	2016-11-14 20:38:58.574254136 +0100
+@@ -484,73 +484,101 @@
+ 
+ /* --- Native-Thread Specific Definitions ------------------------------- */
+ 
++/* Determine static TLS support */
++#if defined(_MSC_VER)
++#define _MD_STATIC_TLS_SUPPORTED 1
++#define _MD_STATIC_TLS_ATTR __declspec(thread)
++#elif defined(__GNUC__)
++#define _MD_STATIC_TLS_SUPPORTED 1
++#define _MD_STATIC_TLS_ATTR __thread
++#else
++#define _MD_STATIC_TLS_SUPPORTED 0
++#endif
++
++#if _MD_STATIC_TLS_SUPPORTED
++
+ extern BOOL _pr_use_static_tls;
+ 
+-extern __declspec(thread) struct PRThread *_pr_current_fiber;
++#define _MD_IF_STATIC_TLS_EXPR(yes_value, no_value) \
++    (_pr_use_static_tls ? (yes_value) : (no_value))
++
++#define _MD_IF_STATIC_TLS_STMT(yes_code, no_code) \
++    PR_BEGIN_MACRO \
++        if (_pr_use_static_tls) { yes_code } else { no_code } \
++    PR_END_MACRO
++
++#define _MD_STATIC_TLS_VAR_DEFINE(decl) _MD_STATIC_TLS_ATTR decl;
++#define _MD_STATIC_TLS_VAR_EXTERN(decl) extern _MD_STATIC_TLS_ATTR decl;
++
++#else
++
++#define _MD_IF_STATIC_TLS_EXPR(yes_value, no_value) (no_value)
++
++#define _MD_IF_STATIC_TLS_STMT(yes_code, no_code) \
++    PR_BEGIN_MACRO no_code PR_END_MACRO
++
++#define _MD_STATIC_TLS_VAR_DEFINE(decl)
++#define _MD_STATIC_TLS_VAR_EXTERN(decl)
++
++#endif
++
++_MD_STATIC_TLS_VAR_EXTERN(struct PRThread *_pr_current_fiber)
+ extern DWORD _pr_currentFiberIndex;
+ 
+ #define _MD_GET_ATTACHED_THREAD() \
+-    (_pr_use_static_tls ? _pr_current_fiber \
+-    : (PRThread *) TlsGetValue(_pr_currentFiberIndex))
++    _MD_IF_STATIC_TLS_EXPR(_pr_current_fiber, \
++    (PRThread *) TlsGetValue(_pr_currentFiberIndex))
+ 
+ extern struct PRThread * _MD_CURRENT_THREAD(void);
+ 
+ #define _MD_SET_CURRENT_THREAD(_thread) \
+-    PR_BEGIN_MACRO \
+-        if (_pr_use_static_tls) { \
+-            _pr_current_fiber = (_thread); \
+-        } else { \
+-            TlsSetValue(_pr_currentFiberIndex, (_thread)); \
+-        } \
+-    PR_END_MACRO
+-
+-extern __declspec(thread) struct PRThread *_pr_fiber_last_run;
++    _MD_IF_STATIC_TLS_STMT({ \
++        _pr_current_fiber = (_thread); \
++    }, { \
++        TlsSetValue(_pr_currentFiberIndex, (_thread)); \
++    })
++    
++_MD_STATIC_TLS_VAR_EXTERN(struct PRThread *_pr_fiber_last_run)
+ extern DWORD _pr_lastFiberIndex;
+ 
+ #define _MD_LAST_THREAD() \
+-    (_pr_use_static_tls ? _pr_fiber_last_run \
+-    : (PRThread *) TlsGetValue(_pr_lastFiberIndex))
++    _MD_IF_STATIC_TLS_EXPR(_pr_fiber_last_run, \
++    (PRThread *) TlsGetValue(_pr_lastFiberIndex))
+ 
+ #define _MD_SET_LAST_THREAD(_thread) \
+-    PR_BEGIN_MACRO \
+-        if (_pr_use_static_tls) { \
+-            _pr_fiber_last_run = (_thread); \
+-        } else { \
+-            TlsSetValue(_pr_lastFiberIndex, (_thread)); \
+-        } \
+-    PR_END_MACRO
++    _MD_IF_STATIC_TLS_STMT({ \
++        _pr_fiber_last_run = (_thread); \
++    }, { \
++        TlsSetValue(_pr_lastFiberIndex, (_thread)); \
++    })
+ 
+-extern __declspec(thread) struct _PRCPU *_pr_current_cpu;
++_MD_STATIC_TLS_VAR_EXTERN(struct _PRCPU *_pr_current_cpu)
+ extern DWORD _pr_currentCPUIndex;
+ 
+ #define _MD_CURRENT_CPU() \
+-    (_pr_use_static_tls ? _pr_current_cpu \
+-    : (struct _PRCPU *) TlsGetValue(_pr_currentCPUIndex))
++    _MD_IF_STATIC_TLS_EXPR(_pr_current_cpu, \
++    (struct _PRCPU *) TlsGetValue(_pr_currentCPUIndex))
+ 
+ #define _MD_SET_CURRENT_CPU(_cpu) \
+-    PR_BEGIN_MACRO \
+-        if (_pr_use_static_tls) { \
+-            _pr_current_cpu = (_cpu); \
+-        } else { \
+-            TlsSetValue(_pr_currentCPUIndex, (_cpu)); \
+-        } \
+-    PR_END_MACRO
++    _MD_IF_STATIC_TLS_STMT({ \
++        _pr_current_cpu = (_cpu); \
++    }, { \
++        TlsSetValue(_pr_currentCPUIndex, (_cpu)); \
++    })
+ 
+-extern __declspec(thread) PRUintn _pr_ints_off;
++_MD_STATIC_TLS_VAR_EXTERN(PRUintn _pr_ints_off)
+ extern DWORD _pr_intsOffIndex;
+ 
+ #define _MD_GET_INTSOFF() \
+-    (_pr_use_static_tls ? _pr_ints_off \
+-    : (PRUintn) TlsGetValue(_pr_intsOffIndex))
++    _MD_IF_STATIC_TLS_EXPR(_pr_ints_off, \
++    (PRUintn) TlsGetValue(_pr_intsOffIndex))
+ 
+ #define _MD_SET_INTSOFF(_val) \
+-    PR_BEGIN_MACRO \
+-        if (_pr_use_static_tls) { \
+-            _pr_ints_off = (_val); \
+-        } else { \
+-            TlsSetValue(_pr_intsOffIndex, (LPVOID) (_val)); \
+-        } \
+-    PR_END_MACRO
++    _MD_IF_STATIC_TLS_STMT({ \
++        _pr_ints_off = (_val); \
++    }, { \
++        TlsSetValue(_pr_intsOffIndex, (LPVOID) (_val)); \
++    })
+ 
+ /* --- Initialization stuff --- */
+ #define _MD_INIT_LOCKS()
+diff -urN nspr-4.12.orig/nspr/pr/src/md/windows/ntdllmn.c nspr-4.12/nspr/pr/src/md/windows/ntdllmn.c
+--- nspr-4.12.orig/nspr/pr/src/md/windows/ntdllmn.c	2016-02-12 14:51:25.000000000 +0100
++++ nspr-4.12/nspr/pr/src/md/windows/ntdllmn.c	2016-11-13 23:35:15.996451866 +0100
+@@ -19,7 +19,9 @@
+ #include <windows.h>
+ #include <primpl.h>
+ 
++#if _MD_STATIC_TLS_SUPPORTED
+ extern BOOL _pr_use_static_tls;  /* defined in ntthread.c */
++#endif
+ 
+ BOOL WINAPI DllMain(
+     HINSTANCE hinstDLL,
+@@ -30,6 +32,7 @@
+ 
+     switch (fdwReason) {
+         case DLL_PROCESS_ATTACH:
++#if _MD_STATIC_TLS_SUPPORTED
+             /*
+              * If lpvReserved is NULL, we are dynamically loaded
+              * and therefore can't use static thread-local storage.
+@@ -39,6 +42,7 @@
+             } else {
+                 _pr_use_static_tls = TRUE;
+             }
++#endif
+             break;
+         case DLL_THREAD_ATTACH:
+             break;
+diff -urN nspr-4.12.orig/nspr/pr/src/md/windows/ntio.c nspr-4.12/nspr/pr/src/md/windows/ntio.c
+--- nspr-4.12.orig/nspr/pr/src/md/windows/ntio.c	2016-02-12 14:51:25.000000000 +0100
++++ nspr-4.12/nspr/pr/src/md/windows/ntio.c	2016-11-14 20:39:22.377548419 +0100
+@@ -36,7 +36,7 @@
+ static PRInt32               _pr_recycle_INET6_array[RECYCLE_SIZE];
+ static PRInt32               _pr_recycle_INET6_tail = 0; 
+ 
+-__declspec(thread) PRThread *_pr_io_restarted_io = NULL;
++_MD_STATIC_TLS_VAR_DEFINE(PRThread *_pr_io_restarted_io = NULL)
+ DWORD _pr_io_restartedIOIndex;  /* The thread local storage slot for each
+                                  * thread is initialized to NULL. */
+ 
+@@ -766,11 +766,11 @@
+     PRBool fWait = PR_TRUE;
+ 
+     if (!_PR_IS_NATIVE_THREAD(thread)) {
+-        if (_pr_use_static_tls) {
++        _MD_IF_STATIC_TLS_STMT({
+             _pr_io_restarted_io = thread;
+-        } else {
++        }, {
+             TlsSetValue(_pr_io_restartedIOIndex, thread);
+-        }
++        });
+     } else {
+         _PR_THREAD_LOCK(thread);
+         if (!thread->io_pending)
+diff -urN nspr-4.12.orig/nspr/pr/src/md/windows/ntthread.c nspr-4.12/nspr/pr/src/md/windows/ntthread.c
+--- nspr-4.12.orig/nspr/pr/src/md/windows/ntthread.c	2016-02-12 14:51:25.000000000 +0100
++++ nspr-4.12/nspr/pr/src/md/windows/ntthread.c	2016-11-14 20:40:36.632466287 +0100
+@@ -10,11 +10,13 @@
+ PRLock                       *_pr_schedLock = NULL;
+ _PRInterruptTable             _pr_interruptTable[] = { { 0 } };
+ 
+-BOOL _pr_use_static_tls = TRUE;
+-__declspec(thread) PRThread  *_pr_current_fiber;
+-__declspec(thread) PRThread  *_pr_fiber_last_run;
+-__declspec(thread) _PRCPU    *_pr_current_cpu;
+-__declspec(thread) PRUintn    _pr_ints_off;
++#if _MD_STATIC_TLS_SUPPORTED
++BOOL _pr_use_static_tls = _MD_STATIC_TLS_SUPPORTED;
++#endif
++_MD_STATIC_TLS_VAR_DEFINE(PRThread  *_pr_current_fiber)
++_MD_STATIC_TLS_VAR_DEFINE(PRThread  *_pr_fiber_last_run)
++_MD_STATIC_TLS_VAR_DEFINE(_PRCPU    *_pr_current_cpu)
++_MD_STATIC_TLS_VAR_DEFINE(PRUintn    _pr_ints_off)
+ DWORD _pr_currentFiberIndex;
+ DWORD _pr_lastFiberIndex;
+ DWORD _pr_currentCPUIndex;
+@@ -24,15 +26,15 @@
+ PRCList                       _nt_idleList;
+ PRUint32                        _nt_idleCount;
+ 
+-extern __declspec(thread) PRThread *_pr_io_restarted_io;
++_MD_STATIC_TLS_VAR_EXTERN(PRThread *_pr_io_restarted_io)
+ extern DWORD _pr_io_restartedIOIndex;
+ 
+ /* Must check the restarted_io *before* decrementing no_sched to 0 */
+ #define POST_SWITCH_WORK() \
+     PR_BEGIN_MACRO \
+         PRThread *restarted_io = \
+-            (_pr_use_static_tls ? _pr_io_restarted_io \
+-            : (PRThread *) TlsGetValue(_pr_io_restartedIOIndex)); \
++            _MD_IF_STATIC_TLS_EXPR(_pr_io_restarted_io, \
++            (PRThread *) TlsGetValue(_pr_io_restartedIOIndex)); \
+         if (restarted_io) { \
+             _nt_handle_restarted_io(restarted_io); \
+         } \
+@@ -69,11 +71,11 @@
+ 
+     _PR_THREAD_UNLOCK(restarted_io);
+ 
+-    if (_pr_use_static_tls) {
++    _MD_IF_STATIC_TLS_STMT({
+         _pr_io_restarted_io = NULL;
+-    } else {
++    }, {
+         TlsSetValue(_pr_io_restartedIOIndex, NULL);
+-    }
++    });
+ }
+ 
+ void
+@@ -91,7 +93,10 @@
+     }
+ #endif
+ 
+-    if (!_pr_use_static_tls) {
++#if _MD_STATIC_TLS_SUPPORTED
++    if (!_pr_use_static_tls)
++#endif
++    {
+         _pr_currentFiberIndex = TlsAlloc();
+         _pr_lastFiberIndex = TlsAlloc();
+         _pr_currentCPUIndex = TlsAlloc();
+@@ -106,7 +111,10 @@
+ 
+     WSACleanup();
+ 
+-    if (!_pr_use_static_tls) {
++#if _MD_STATIC_TLS_SUPPORTED
++    if (!_pr_use_static_tls)
++#endif
++    {
+         TlsFree(_pr_currentFiberIndex);
+         TlsFree(_pr_lastFiberIndex);
+         TlsFree(_pr_currentCPUIndex);

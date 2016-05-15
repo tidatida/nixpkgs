@@ -31,7 +31,7 @@ index 5c5d2ca..026e528 100644
  	 */
  	library = PR_LoadLibrary(mod->dllName);
 +	if ((library == NULL) &&
-+	    !rindex(mod->dllName, PR_GetDirectorySeparator())) {
++	    !strrchr(mod->dllName, PR_GetDirectorySeparator())) {
 +            library = PORT_LoadLibraryFromOrigin(my_shlib_name,
 +                                      (PRFuncPtr) &softoken_LoadDSO,
 +                                      mod->dllName);
