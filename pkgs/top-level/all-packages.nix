@@ -63,6 +63,23 @@ in
   forceNativeDrv = drv : if crossSystem == null then drv else
     (drv // { crossDrv = drv.nativeDrv; });
 
+  # Wrapper for mkDerivation which allows easier cross-compiling-dependant attributes.
+  # commonAttrs: a set of attributes which don't differ for cross-compiling.
+  # dependantAttrs: a function of bool crossCompiling which returns attributes that
+  # may differ for cross-compiling.
+  mkCrossDerivation = commonAttrs: dependantAttrs:
+    stdenv.mkDerivation (commonAttrs // (dependantAttrs false) // { crossAttrs = dependantAttrs true; });
+
+  # Get the derivation for the "host" system (one for which package is being built).
+  # Intended for use with mkCrossDerivation.
+  getHostDrv = crossCompiling: drv: if crossCompiling then drv.crossDrv else drv;
+
+  # Check if the "host" system is 64-bit.
+  # Intended for use with mkCrossDerivation.
+  isHost64bit = crossCompiling:
+    if crossCompiling then (if stdenv.cross ? is64bit then stdenv.cross.is64bit else false)
+    else stdenv.is64bit;
+
   stdenvCross = lowPrio (makeStdenvCross defaultStdenv crossSystem binutilsCross gccCrossStageFinal);
 
   # A stdenv capable of building 32-bit binaries.  On x86_64-linux,

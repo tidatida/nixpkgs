@@ -28,7 +28,7 @@ diff -ru -x '*~' nss-3.27.1-orig/nss/lib/pk11wrap/pk11load.c nss-3.27.1/nss/lib/
  	 */
  	library = PR_LoadLibrary(mod->dllName);
 +	if ((library == NULL) &&
-+	    !rindex(mod->dllName, PR_GetDirectorySeparator())) {
++	    !strrchr(mod->dllName, PR_GetDirectorySeparator())) {
 +            library = PORT_LoadLibraryFromOrigin(my_shlib_name,
 +                                      (PRFuncPtr) &softoken_LoadDSO,
 +                                      mod->dllName);

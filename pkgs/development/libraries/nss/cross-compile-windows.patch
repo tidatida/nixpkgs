@@ -1,0 +1,36 @@
+diff -urN nss-3.23.orig/nss/cmd/crmftest/Makefile nss-3.23/nss/cmd/crmftest/Makefile
+--- nss-3.23.orig/nss/cmd/crmftest/Makefile	2016-05-15 11:59:06.612746964 +0200
++++ nss-3.23/nss/cmd/crmftest/Makefile	2016-05-15 15:18:43.173364355 +0200
+@@ -57,8 +57,4 @@
+ 
+ LDDIST = $(DIST)/lib
+ 
+-ifeq (,$(filter-out WIN%,$(OS_TARGET)))
+-EXTRA_LIBS += $(LDDIST)/sectool.lib
+-endif
+-
+ include ../platrules.mk
+diff -urN nss-3.23.orig/nss/cmd/platlibs.mk nss-3.23/nss/cmd/platlibs.mk
+--- nss-3.23.orig/nss/cmd/platlibs.mk	2016-05-15 11:59:06.596746761 +0200
++++ nss-3.23/nss/cmd/platlibs.mk	2016-05-15 15:05:38.247633431 +0200
+@@ -97,9 +97,9 @@
+ 	$(DIST)/lib/$(LIB_PREFIX)certhi.$(LIB_SUFFIX) \
+ 	$(DIST)/lib/$(LIB_PREFIX)cryptohi.$(LIB_SUFFIX) \
+ 	$(DIST)/lib/$(LIB_PREFIX)pk11wrap.$(LIB_SUFFIX) \
+-	$(DIST)/lib/$(LIB_PREFIX)certdb.$(LIB_SUFFIX) \
+ 	$(NULL)
+ NSS_LIBS_3 = \
++	$(DIST)/lib/$(LIB_PREFIX)certdb.$(LIB_SUFFIX) \
+ 	$(DIST)/lib/$(LIB_PREFIX)nsspki.$(LIB_SUFFIX) \
+ 	$(DIST)/lib/$(LIB_PREFIX)nssdev.$(LIB_SUFFIX) \
+ 	$(DIST)/lib/$(LIB_PREFIX)nssb.$(LIB_SUFFIX) \
+@@ -107,6 +107,9 @@
+ 	$(DBMLIB) \
+ 	$(NULL)
+ NSS_LIBS_4 = \
++	$(DIST)/lib/$(LIB_PREFIX)nss.$(LIB_SUFFIX) \
++	$(DIST)/lib/$(LIB_PREFIX)pk11wrap.$(LIB_SUFFIX) \
++	$(DIST)/lib/$(LIB_PREFIX)certhi.$(LIB_SUFFIX) \
+ 	$(SQLITE_LIB_DIR)/$(LIB_PREFIX)$(SQLITE_LIB_NAME).$(LIB_SUFFIX) \
+ 	$(NSSUTIL_LIB_DIR)/$(LIB_PREFIX)nssutil3.$(LIB_SUFFIX) \
+ 	$(NSPR_LIB_DIR)/$(NSPR31_LIB_PREFIX)plc4.$(LIB_SUFFIX) \
