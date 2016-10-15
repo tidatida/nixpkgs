@@ -2,15 +2,15 @@
 , qtquickcontrols, qtwebkit
 , kconfig, kdeclarative, kdoctools, kiconthemes, ki18n, kitemmodels, kitemviews
 , kjobwidgets, kcmutils, kio, knewstuff, knotifyconfig, kparts, ktexteditor
-, threadweaver, kxmlgui, kwindowsystem
+, threadweaver, kxmlgui, kwindowsystem, grantlee
 , plasma-framework, krunner, kdevplatform, kdevelop-pg-qt, shared_mime_info
 , libksysguard, llvmPackages
 }:
 
 let
   pname = "kdevelop";
-  version = "5.0";
-  dirVersion = "5.0.0";
+  version = "5.0.1";
+  dirVersion = "5.0.1";
 
 in
 stdenv.mkDerivation rec {
@@ -18,7 +18,7 @@ stdenv.mkDerivation rec {
 
   src = fetchurl {
     url = "mirror://kde/stable/${pname}/${dirVersion}/src/${name}.tar.xz";
-    sha256 = "5e034b8670f4ba13ccb2948c28efa0b54df346e85b648078698cca8974ea811c";
+    sha256 = "f8ef3bbd31d1f05627a554e0092b16faba3e332dd21f4e83db20f3789cea3465";
   };
 
   nativeBuildInputs = [ cmake gettext pkgconfig extra-cmake-modules makeQtWrapper ];
@@ -27,7 +27,7 @@ stdenv.mkDerivation rec {
     qtquickcontrols qtwebkit
     kconfig kdeclarative kdoctools kiconthemes ki18n kitemmodels kitemviews
     kjobwidgets kcmutils kio knewstuff knotifyconfig kparts ktexteditor
-    threadweaver kxmlgui kwindowsystem plasma-framework krunner
+    threadweaver kxmlgui kwindowsystem grantlee plasma-framework krunner
     kdevplatform kdevelop-pg-qt shared_mime_info libksysguard
     llvmPackages.llvm llvmPackages.clang-unwrapped
   ];

@@ -6,8 +6,8 @@
 
 let
   pname = "kdevplatform";
-  version = "5.0";
-  dirVersion = "5.0.0";
+  version = "5.0.1";
+  dirVersion = "5.0.1";
 
 in
 stdenv.mkDerivation rec {
@@ -15,7 +15,7 @@ stdenv.mkDerivation rec {
   
   src = fetchurl {
     url = "mirror://kde/stable/kdevelop/${dirVersion}/src/${name}.tar.xz";
-    sha256 = "4085b355ab8d599d902afbc11027e1aefb22afe30d63ed54ea5fe02f24edfd10";
+    sha256 = "c28cb7629556961d240536b5efc6e3c1c2e4387988cbae0ded0b61ddf0f0ae1f";
   };
 
   nativeBuildInputs = [ cmake gettext pkgconfig extra-cmake-modules makeQtWrapper ];
