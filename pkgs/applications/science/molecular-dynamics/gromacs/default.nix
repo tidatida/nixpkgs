@@ -2,21 +2,28 @@
 { stdenv, fetchurl, cmake,
   singlePrec ? true,
   mpiEnabled ? false,
+  cudaSupport ? true,
+  zlib,
+  boost,
   fftw,
-  openmpi
+  openmpi,
+  cudatoolkit,
 }:
 
-
+let
+    version = "5.1.4";
+in
 stdenv.mkDerivation {
-  name = "gromacs-4.6.7";
+  name = "gromacs-${version}";
 
   src = fetchurl {
-    url = "ftp://ftp.gromacs.org/pub/gromacs/gromacs-4.6.7.tar.gz";
-    sha256 = "6afb1837e363192043de34b188ca3cf83db6bd189601f2001a1fc5b0b2a214d9";
+    url = "ftp://ftp.gromacs.org/pub/gromacs/gromacs-${version}.tar.gz";
+    sha256 = "0f3793d8f1f0be747cf9ebb0b588fb2b2b5dc5acc32c3046a7bee2d2c03437bc";
   };
 
-  buildInputs = [cmake fftw]
-  ++ (stdenv.lib.optionals mpiEnabled [ openmpi ]);
+  buildInputs = [cmake zlib boost fftw]
+  ++ (stdenv.lib.optionals mpiEnabled [ openmpi ])
+  ++ (stdenv.lib.optionals cudaSupport [ cudatoolkit ]);
 
   cmakeFlags = ''
     ${if singlePrec then "-DGMX_DOUBLE=OFF" else "-DGMX_DOUBLE=ON -DGMX_DEFAULT_SUFFIX=OFF"}
@@ -25,6 +32,7 @@ stdenv.mkDerivation {
                           -DGMX_OPENMP:BOOL=TRUE
                           -DGMX_THREAD_MPI:BOOL=FALSE"
                      else "-DGMX_MPI:BOOL=FALSE" }
+    ${if cudaSupport then "-DGMX_GPU=ON" else "-DGMX_GPU=OFF"}
   '';
 
   meta = with stdenv.lib; {

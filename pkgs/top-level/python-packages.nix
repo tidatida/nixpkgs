@@ -19422,6 +19422,50 @@ in modules // {
     };
   };
 
+  pymol = buildPythonPackage rec {
+    name = "pymol-1.8.4.0";
+    disabled = isPyPy || isPy3k;
+    
+    src = pkgs.fetchurl {
+      url = "mirror://sourceforge/pymol/pymol/1.8/pymol-v1.8.4.0.tar.bz2";
+      sha256 = "b6147befe74844dd23550461b831b2fa6d170d4456f0059cf93fb1e8cb43d279";
+    };
+    
+    buildInputs = with self; [
+      pkgs.pkgconfig pkgs.freeglut pkgs.freetype pkgs.glew
+      pkgs.libpng pkgs.zlib pkgs.libxml2 ];
+    
+    pythonPath = with self; [ numpy pyopengl pmw ];
+    
+    NIX_CFLAGS_COMPILE = "-I${pkgs.libxml2.dev}/include/libxml2";
+    
+    preBuild = ''
+      sed \
+        -e "s/for prefix in prefix_path/for prefix in []/g" \
+        -i setup.py
+    '';
+    
+    preFixup = ''
+      cat > $out/bin/pymol <<EOF
+      #!/usr/bin/env python
+      import os
+      execfile("$out/lib/${python.libPrefix}/site-packages/pymol/__init__.py")
+      EOF
+      chmod +x $out/bin/pymol
+    '';
+  };
+  
+  pmw = buildPythonPackage rec {
+    name = "pmw-1.3.3";
+    disabled = isPyPy || isPy3k;
+    
+    src = pkgs.fetchurl {
+      url = "mirror://sourceforge/pmw/Pmw.1.3.3.tar.gz";
+      sha256 = "0727bada8afe2e8844e95eb007f5331777389e23f9fce8f49c4864b153e4a494";
+    };
+    
+    propagatedBuildInputs = [ self.tkinter ];
+  };
 
   pyodbc = buildPythonPackage rec {
     name = "pyodbc-3.0.7";
