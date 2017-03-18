@@ -104,7 +104,6 @@ let
       ++ optional (versionAtLeast version "56.0.0.0") gtk3;
 
     patches = [
-      ./patches/glibc-2.24.patch
       ./patches/nix_plugin_paths_52.patch
     ] ++ optional enableWideVine ./patches/widevine.patch;
 
